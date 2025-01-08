@@ -1,0 +1,73 @@
+_schema-version: 3.3.0
+ID: gerarchiaclienti_backend
+version: 1.0.0
+description: "A simple CAP project."
+parameters:
+  enable-parallel-deployments: true
+build-parameters:
+  before-all:
+    - builder: custom
+      commands:
+        - npm ci
+        - npx cds build --production
+modules:
+  - name: gerarchiaclienti_backend-srv
+    type: nodejs
+    path: gen/srv
+    parameters:
+      buildpack: nodejs_buildpack
+      readiness-health-check-type: http
+      readiness-health-check-http-endpoint: /health
+    build-parameters:
+      builder: npm
+    provides:
+      - name: srv-api # required by consumers of CAP services (e.g. approuter)
+        properties:
+          srv-url: ${default-url}
+    requires:
+      - name: gerarchiaclienti_backend-auth
+      - name: gerarchiaclienti_backend-db
+      - name: gerarchiaclienti_backend-destination
+      - name: gerarchiaclienti_backend-logging
+      - name: gerarchiaclienti_backend-autoscaler
+        parameters:
+          path: ./autoscaler.json
+
+  - name: gerarchiaclienti_backend-db-deployer
+    type: hdb
+    path: gen/db
+    parameters:
+      buildpack: nodejs_buildpack
+    requires:
+      - name: gerarchiaclienti_backend-db
+
+resources:
+  - name: gerarchiaclienti_backend-auth
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: xsuaa
+      service-plan: application
+      path: ./xs-security.json
+      config:
+        xsappname: gerarchiaclienti_backend
+        tenant-mode: dedicated
+  - name: gerarchiaclienti_backend-db
+    type: com.sap.xs.hdi-container
+    parameters:
+      service: hana
+      service-plan: hdi-shared
+  - name: gerarchiaclienti_backend-destination
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: destination
+      service-plan: lite
+  - name: gerarchiaclienti_backend-logging
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: application-logs
+      service-plan: lite
+  - name: gerarchiaclienti_backend-autoscaler
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: autoscaler
+      service-plan: standard
