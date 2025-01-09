@@ -9,7 +9,7 @@ context hierarchy {
         key VALIDITYENDDATE   : String(8)  @title: 'Data';
         key PARENTNODE        : String(10) @title: 'Higher-level customer hierarchy';
             HVKORG            : String(4)  @title: 'Higher-level sales organization';
-            HHVTWEG           : String(2)  @title: 'Higher-level distribution channel';
+            HVTWEG            : String(2)  @title: 'Higher-level distribution channel';
             HSPART            : String(2)  @title: 'Higher-level division';
             ERDAT             : String(8)  @title: 'Creation Date';
             ERZET             : Timestamp  @title: 'Creation Time';
