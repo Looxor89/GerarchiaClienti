@@ -12,7 +12,7 @@ context hierarchy {
             HVTWEG            : String(2)  @title: 'Higher-level distribution channel';
             HSPART            : String(2)  @title: 'Higher-level division';
             ERDAT             : String(8)  @title: 'Creation Date';
-            ERZET             : Timestamp  @title: 'Creation Time';
+            ERZET             : String(6)  @title: 'Creation Time';
             ERNAM             : String(12) @title: 'Author';
     }
 }
