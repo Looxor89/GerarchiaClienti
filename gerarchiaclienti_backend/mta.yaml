@@ -28,7 +28,6 @@ modules:
       - name: gerarchiaclienti_backend-auth
       - name: gerarchiaclienti_backend-db
       - name: gerarchiaclienti_backend-destination
-      - name: gerarchiaclienti_backend-logging
       - name: gerarchiaclienti_backend-autoscaler
         parameters:
           path: ./autoscaler.json
@@ -40,6 +39,29 @@ modules:
       buildpack: nodejs_buildpack
     requires:
       - name: gerarchiaclienti_backend-db
+
+  - name: gerarchiaclienti_backend-destination-content
+    type: com.sap.application.content
+    requires:
+      - name: gerarchiaclienti_backend-destination
+        parameters:
+          content-target: true
+      - name: gerarchiaclienti_backend-auth
+        parameters:
+          service-key:
+            name: uaa_gerarchiaclienti-key
+    parameters:
+      content:
+        instance:
+          destinations:
+            - Authentication: OAuth2UserTokenExchange
+              Name: uaa_gerarchiaclienti
+              ServiceInstanceName: gerarchiaclienti_backend-auth
+              ServiceKeyName: uaa_gerarchiaclienti-key
+              sap.cloud.service: gerarchiaclienti
+          existing_destinations_policy: ignore
+    build-parameters:
+      no-source: true
 
 resources:
   - name: gerarchiaclienti_backend-auth
@@ -60,11 +82,6 @@ resources:
     type: org.cloudfoundry.managed-service
     parameters:
       service: destination
-      service-plan: lite
-  - name: gerarchiaclienti_backend-logging
-    type: org.cloudfoundry.managed-service
-    parameters:
-      service: application-logs
       service-plan: lite
   - name: gerarchiaclienti_backend-autoscaler
     type: org.cloudfoundry.managed-service
